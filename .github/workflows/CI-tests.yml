@@ -34,10 +34,8 @@ jobs:
     - name: Run Playwright tests
       run: |
         npx playwright install  # Install browsers
-        npx playwright test --reporter=html    # Run Playwright tests
+        npx playwright test     # Run Playwright tests
 
-    - name: List files in the report folder
-      run: ls -R playwright-report
 
     - name: Upload HTML report as artifact
       uses: actions/upload-artifact@v4
