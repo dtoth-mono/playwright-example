@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../src/testSetup");
 const { LandingPage } = require('../pageObjects/landingPage');
 
 test("Search Test", async ({ page }) => {
@@ -6,5 +6,5 @@ test("Search Test", async ({ page }) => {
 
   await page.goto("http://demo.baasic.com/angular/starterkit-photo-gallery/main");
   await landingPage.searchFor("Test");
-  // await page.waitForTimeout(10000);
+  await expect(page.getByText("Test").first()).toBeVisible();
 });

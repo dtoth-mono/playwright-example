@@ -1,4 +1,4 @@
-const { expect } = require("@playwright/test");
+const { test, expect } = require("../src/testSetup");
 
 exports.LandingPage = class LandingPage {
   constructor(page) {
@@ -11,14 +11,16 @@ exports.LandingPage = class LandingPage {
   }
 
   async searchFor(str) {
-    await this.searchBtn.click();
-    await this.searchField.waitFor({ state: "attached" });
-    await this.searchField.fill(str);
-    await this.page.keyboard.press("Enter");
-    await this.page.waitForTimeout(2000);
+    await test.step(`Searching for: ${str}`, async () => {
+      await this.searchBtn.click();
+      await this.searchField.waitFor({ state: "attached" });
+      await this.searchField.fill(str);
+      await this.page.keyboard.press("Enter");
+      await this.page.waitForLoader();
 
-    const url = this.page.url();
-    await expect(url).toContain(`/search/${str}`);
+      const url = this.page.url();
+      await expect(url).toContain(`/search/${str}`);
+    });
   }
 
 }
