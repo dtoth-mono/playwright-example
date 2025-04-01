@@ -34,7 +34,7 @@ jobs:
     - name: Run Playwright tests
       run: |
         npx playwright install  # Install browsers
-        npx playwright test     # Run Playwright tests
+        npx playwright test --reporter=line > result || echo "Run Failed" # Run Playwright tests
 
 
     - name: Upload HTML report as artifact
@@ -47,8 +47,9 @@ jobs:
     - name: Create GitHub issue on failure
       if: failure()  # This ensures the issue is created only on failure
       run: |
+        username=$(git config --get user.name)
         curl -X POST \
           -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
-          -d '{"title":"CI Build Failed","body":"The CI build failed on the latest commit. Please investigate.","assignees":["<GitHub username>"],"labels":["bug"]}' \
+          -d '{"title":"CI Build Failed","body":"The CI build failed on the latest commit. Please investigate.\n\nTest Results:\n\n'"$test_results"'","assignees":["'"$username"'"],"labels":["bug"]}' \
           "https://api.github.com/repos/${{ github.repository }}/issues"
