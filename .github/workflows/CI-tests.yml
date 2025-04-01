@@ -36,6 +36,15 @@ jobs:
         npx playwright install  # Install browsers
         npx playwright test --reporter=html    # Run Playwright tests
 
+    - name: List files in the report folder
+      run: ls -R playwright-report
+
+    - name: Upload HTML report as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: playwright-report/**
+
     # Step 5: Create an issue if the test fails
     - name: Create GitHub issue on failure
       if: failure()  # This ensures the issue is created only on failure
