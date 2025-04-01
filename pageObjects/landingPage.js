@@ -15,6 +15,10 @@ exports.LandingPage = class LandingPage {
     await this.searchField.waitFor({ state: "attached" });
     await this.searchField.fill(str);
     await this.page.keyboard.press("Enter");
+    await this.page.waitForTimeout(2000);
+
+    const url = this.page.url();
+    await expect(url).toContain(`/search/${str}`);
   }
 
 }

@@ -6,6 +6,5 @@ test("Search Test", async ({ page }) => {
 
   await page.goto("http://demo.baasic.com/angular/starterkit-photo-gallery/main");
   await landingPage.searchFor("Test");
-  await expect(page).toHaveURL(/.*search/);
-  await page.waitForTimeout(10000);
+  // await page.waitForTimeout(10000);
 });
