@@ -32,12 +32,21 @@ jobs:
 
     # Step 4: Run Playwright tests
     - name: Run Playwright tests
+      id: playwright_tests
+      continue-on-error: true
       run: |
         npx playwright install  # Install browsers
         npx playwright test | tee results     # Run Playwright tests
+        exit_code=$?  # Capture exit code
+
         echo "TEST_RESULTS<<EOF" >> $GITHUB_ENV
         cat results >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
+
+        if [ $exit_code -ne 0 ]; then
+          echo "Playwright tests failed"
+          exit $exit_code  # Ensures failure detection
+        fi
 
 
     - name: Upload HTML report as artifact
@@ -48,17 +57,24 @@ jobs:
 
     # Step 5: Create an issue if the test fails
     - name: Create GitHub issue on failure
-      if: failure()  # This ensures the issue is created only on failure
+      if: always()  # This ensures the issue is created only on failure
       run: |
-        username=$(git config --get user.name)
-        results="${{ env.TEST_RESULTS }}"
-        curl -X POST \
-          -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          -d '{
-          "title":"CI Build Failed",
-          "body":"The CI build failed on the latest commit. Please investigate.\n\nTest Results:\n\n'"$results"'",
-          "assignees":["'"$username"'"],
-          "labels":["bug"]
-          }' \
-          "https://api.github.com/repos/${{ github.repository }}/issues"
+        # Only create an issue if tests actually failed
+        if [ "${{ steps.playwright_tests.outcome }}" != "success" ]; then
+          username=$(git config --get user.name)
+          test_results="${{ env.TEST_RESULTS }}"
+          test_results="${test_results:0:5000}"  # Trim output
+
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -d '{
+              "title": "CI Build Failed",
+              "body": "The CI build failed. Please investigate.\n\n**Test Results:**\n```\n'"$test_results"'\n```\n\n[View full Playwright report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
+              "assignees": ["'"$username"'"],
+              "labels": ["bug"]
+            }' \
+            "https://api.github.com/repos/${{ github.repository }}/issues"
+        else
+          echo "Tests passed, skipping issue creation."
+        fi
