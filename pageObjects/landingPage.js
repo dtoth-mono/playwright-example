@@ -8,6 +8,8 @@ exports.LandingPage = class LandingPage {
     this.menuLogo = this.menuBanner.getByRole("link", { name: "Menu" });
     this.searchBtn = page.getByRole("textbox", { name: "Search" });
     this.searchField = page.getByPlaceholder("Search...");
+
+    this.galleryBtn = page.getByRole('img', { name: 'Display photos' });
   }
 
   async searchFor(str) {
