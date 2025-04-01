@@ -34,4 +34,4 @@ jobs:
     - name: Run Playwright tests
       run: |
         npx playwright install  # Install browsers
-        npx playwright test     # Run Playwright tests
+        npx playwright test --reporter=html    # Run Playwright tests
