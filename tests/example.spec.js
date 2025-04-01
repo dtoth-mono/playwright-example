@@ -13,7 +13,7 @@ test("Search Test", async ({ page }) => {
   await expect(page.getByText("Test").first()).toBeVisible();
 });
 
-test("Gallery Test", async ({ page }) => {
+test.only("Gallery Test", async ({ page }) => {
   const gallery = new Gallery(page);
 
   await gallery.galleryBtn.click();
