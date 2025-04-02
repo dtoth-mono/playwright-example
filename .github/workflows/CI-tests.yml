@@ -49,7 +49,7 @@ jobs:
 
     - name: Playwright issue creator
       if: ${{ !cancelled() }}
-      uses: estruyf/playwright-github-issue-creator@v1.1.0
+      uses: estruyf/playwright-github-issue-creator@v1.3.0
       with:
         github-token: ${{ secrets.GH_TOKEN }}
         report-path: results.json
@@ -66,5 +66,8 @@ jobs:
         path: playwright-report/**
 
     - name: Fail The Workflow if tests failed
-      if: env.TEST_FAILED == 'true'
-      run: exit 1
+      if: 
+      uses: actions/github-script@v3
+      with:
+        script: |
+          core.setFailed('Some Tests Failed')
