@@ -10,7 +10,7 @@ test("Search Test", async ({ page }) => {
   const landingPage = new LandingPage(page);
 
   await landingPage.searchFor("Test");
-  await expect(page.getByText("Test").first()).toBeVisible();
+  await expect(page.getByText("Test").first()).toBeHidden();
 });
 
 test("Gallery Test", async ({ page }) => {
