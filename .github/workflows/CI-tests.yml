@@ -37,13 +37,18 @@ jobs:
       continue-on-error: true
       run: |
         PLAYWRIGHT_JSON_OUTPUT_FILE=results.json npx playwright test --reporter=json
+        exit_code=$?
 
-    - name: Debug Test Faliure Variable
-      run: |
-        echo "TEST_FAILED=${{ env.TEST_FAILED }}"
+        if [ $exit_code -ne 0 ]; then
+          echo "TEST_FAILED=true" >> $GITHUB_ENV
+        else
+          echo "TEST_FAILED=false" >> $GITHUB_ENV
+        fi
+
+        exit $exit_code
 
     - name: Playwright issue creator
-      if: always()
+      if: ${{ !cancelled() }}
       uses: estruyf/playwright-github-issue-creator@v1.1.0
       with:
         github-token: ${{ secrets.GH_TOKEN }}
@@ -59,3 +64,7 @@ jobs:
       with:
         name: playwright-report
         path: playwright-report/**
+
+    - name: Fail The Workflow if tests failed
+      if: env.TEST_FAILED == 'true'
+      run: exit 1
