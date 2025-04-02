@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  TestRun:
+  E2E:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,36 +26,33 @@ jobs:
     # Step 3: Install dependencies
     - name: Install dependencies
       run: |
-        npm install
+        npm ci
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
 
     # Step 4: Run Playwright tests
     - name: Run Playwright tests
       id: playwright_tests
       continue-on-error: true
       run: |
+        PLAYWRIGHT_JSON_OUTPUT_FILE=results.json npx playwright test --reporter=json
 
     - name: Debug Test Faliure Variable
       run: |
         echo "TEST_FAILED=${{ env.TEST_FAILED }}"
 
-
-    # Step 5: Create an issue if the test fails
-    - name: Create GitHub issue on failure
-      if: env.TEST_FAILED   # This ensures the issue is created only on failure
-      run: |
-          test_results="${{ env.TEST_RESULTS }}"
-          test_results="${test_results:0:5000}"  # Trim output
-
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            -d '{
-              "title": "CI Build Failed",
-              "body": "The CI build failed. Please investigate.\n\n**Test Results:**\n```\n'"$test_results"'\n```\n\n[View full Playwright report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
-              "labels": ["bug"]
-            }' \
-            "https://api.github.com/repos/${{ github.repository }}/issues"
-          echo "Tests passed, skipping issue creation."
+    - name: Playwright issue creator
+      if: always()
+      uses: estruyf/playwright-github-issue-creator@v1.1.0
+      with:
+        github-token: ${{ secrets.GH_TOKEN }}
+        report-path: results.json
+        issue-prefix: "E2E: "
+        issue-labels: "playwright, bug"
+        add-project-label: true
+        add-comment: true
+        job-summary: true
 
     - name: Upload HTML report as artifact
       uses: actions/upload-artifact@v4
