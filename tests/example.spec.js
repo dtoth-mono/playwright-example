@@ -28,7 +28,7 @@ test("API Test", async ({ request }, testInfo) => {
   expect(response.status()).toBe(200);
 
   const body = await response.json();
-  expect(body).toHaveProperty("id");
+  expect(body).toHaveProperty("id", 25);
   expect(body).toHaveProperty("name", `${pokemonName}`);
 
   const resultData = {
