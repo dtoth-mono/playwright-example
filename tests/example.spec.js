@@ -19,4 +19,26 @@ test("Gallery Test", async ({ page }) => {
   await gallery.galleryBtn.click();
   await page.waitForTimeout(1500);
   await gallery.checkImg(1);
+});
+
+test("API Test", async ({ request }, testInfo) => {
+  const pokemonName = "pikachu"
+  const response = await request.get(`https://pokeapi.co/api/v2/pokemon/${pokemonName}/`);
+
+  expect(response.status()).toBe(200);
+
+  const body = await response.json();
+  expect(body).toHaveProperty("id");
+  expect(body).toHaveProperty("name", `${pokemonName}`);
+
+  const resultData = {
+    id: body.id,
+    name: body.name,
+    abilities: body.abilities
+  }
+  testInfo.attach("Pokemon Info", {
+    body: JSON.stringify(resultData, null, 2),
+    contentType: "application/json"
+  })
+
 })
