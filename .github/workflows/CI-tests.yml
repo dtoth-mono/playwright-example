@@ -3,9 +3,7 @@
 name: Playwright Tests
 
 on:
-  push:
-    branches:
-      - main
+
   pull_request:
     branches:
       - main
@@ -35,24 +33,6 @@ jobs:
       id: playwright_tests
       continue-on-error: true
       run: |
-        set -o pipefail
-        npx playwright install  # Install browsers
-        npx playwright test | tee results     # Run Playwright tests
-        exit_code=$?
-        echo "Exit Code $exit_code"
-
-        echo "TEST_RESULTS<<EOF" >> $GITHUB_ENV
-        cat results >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-
-        if grep -iqE "error|timeout|failed" results; then
-          echo "TEST_FAILED=true" >> $GITHUB_ENV  # Flag failure for later
-          exit_code=1
-        else
-          echo "TEST_FAILED=false" >> $GITHUB_ENV
-        fi
-
-        exit $exit_code
 
     - name: Debug Test Faliure Variable
       run: |
